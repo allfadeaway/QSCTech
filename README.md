@@ -228,3 +228,8 @@ const canvas=getElementById("ClockCanvas");
 - 修改插销控制范围
 - 调整拖动机制
 - 添加钟面判定
+
+## Ver 0.7
+
+- 完成钟面时间更改
+- 修复了插销乱动的bug

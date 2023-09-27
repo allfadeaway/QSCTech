@@ -3,7 +3,7 @@ const _mgCtx_ = _magicCvs_.getContext("2d");
 
 const boundary = {width: _magicCvs_.width, height: 510};
 
-const center = {left: 100, top: 550};
+const center = {left: 100, top: 550, r: 100};
 let clockBoardPos = {left: 0, top: 450, width: 200, height: 200};
 const clockBoard = new Image();
 clockBoard.src = "./src/ClockBoard.png";
@@ -35,6 +35,7 @@ minuteHand.src = "./src/MinuteHand.png";
 minuteHand.onload = () => {}
 
 
+let upt = {x: 0, y: 0};
 let updateTime = false;
 let reachBoundary = false;
 let isDown = false;
@@ -49,6 +50,10 @@ updatePos(boltPos.left, boltPos.top);
 
 function _ClockAnimation(){
     //实时渲染
+    if (updateTime) {
+        console.log("CHANGE!!!!!!!!!!");
+        changeTime();
+    }
     drawAll();
     window.requestAnimationFrame(_ClockAnimation);
 }
@@ -62,14 +67,19 @@ _magicCvs_.onmousedown = e => {
     console.log("鼠标按下");
     let x = e.offsetX;     
     let y = e.offsetY;
-    now.x = x;
-    now.y = y;
-    console.log(x + " -> " + y);
+    console.log(x + " -> " + y, reachBoundary, pointInBoard(x, y));
     if (reachBoundary && pointInBoard(x, y)) {
+        console.log("更改时间");
         isDown = true;
         updateTime = true;
+        upt.x = x;
+        upt.y = y;
     }
-    else if (pointInBolt(x, y)) isDown = true;
+    else if (pointInBolt(x, y)) {
+        now.x = x;
+        now.y = y;
+        isDown = true;
+    }
     else console.log("鼠标没在路径内");
 };
 _magicCvs_.onmousemove = e => {
@@ -80,33 +90,61 @@ _magicCvs_.onmousemove = e => {
     }
     let x = e.offsetX;
     let y = e.offsetY;
-    console.log(x + " " + y);
-    _mgCtx_.clearRect(0, 0, _magicCvs_.width, _magicCvs_.height);
-    updatePos(boltPos.left, boltPos.top + (y - now.y));
-    judgePosition();
+    if (updateTime) {
+        if (!pointInBoard()) updateTime = false;
+        if (updateTime) { upt.x = x; upt.y = y; }
+    }
+    else {
+        updatePos(boltPos.left, boltPos.top + (y - now.y));
+        judgePosition();
+        if (!pointInBoard()) updateTime = false;
 
-    drawAll();
-    now.y = y;
+        drawAll();
+        now.y = y;
+    }
     console.log("鼠标在移动..." + x + " --> " + y);
 }
 _magicCvs_.onmouseup = e => {
-    // 鼠标松开，则上述封装的动作结束。
+    //鼠标松开
     isDown = false;  
     updateTime = false;
     console.log("鼠标松开");
     drawAll();
 }
 _magicCvs_.onmouseout = e => {
-    // 如果鼠标按下然后移动的过程中离开了当前元素，再松开，但是无法触发鼠标松开事件了，
-    // 所以当监听到鼠标移出元素时，必须也要将isDown设置成false。
+    //鼠标移出
     isDown = false;
     updateTime = false;
     console.log("鼠标离开了画布元素");
-    judgePosition(); 
     drawAll(); 
 }
 
 
+function changeTime() {
+    //修改时间
+    let x = upt.x - center.left;
+    let y = upt.y - center.top;
+    if (x == 0 && y == 0) return;
+    let rad = Math.atan2(y, x) + (Math.PI / 2);
+    if (rad < 0) rad = rad + Math.PI * 2;
+    let num = 0;
+    while (rad > (Math.PI / 6)) {
+        num = num + 1;
+        rad = rad - (Math.PI / 6);
+    }
+    let nwH = num;
+    let nwM = Math.floor(rad / (Math.PI / 6) * 60);
+
+    let st = getTime();
+    let prH = parseInt(st.slice(0, 2));
+    let prM = parseInt(st.slice(3, 5));
+    while (nwH * 60 + nwM < prH * 60 + prM) nwH = nwH + 12;
+    while (nwH > 23) nwH = nwH - 24;
+
+    console.log("修改时间:", nwH, nwM);
+    setTime(`${((nwH<10)?"0":"")}${nwH}:${((nwM<10)?"0":"")}${nwM}`);
+    updaterad();
+}
 
 
 function hourHandDraw() {
@@ -142,8 +180,9 @@ function updaterad() {
     let nwTime = getTime();
     let nwH = parseInt(nwTime.slice(0, 2));
     let nwM = parseInt(nwTime.slice(3, 5));
+    console.log("角度更改:", nwH, nwM);
     let nwMinute = nwH * 60 + nwM;
-    hourHandRotate.rad = Math.PI * 2 * nwMinute / 1440.0;
+    hourHandRotate.rad = Math.PI * 2 * nwMinute / 720.0;
     minuteHandRotate.rad = Math.PI * 2 * nwM / 60.0;
 }
 function drawAll() {
@@ -155,18 +194,14 @@ function drawAll() {
     updaterad();
     hourHandDraw();
     minuteHandDraw();
-
-    //drawImage
-    console.log("Rect:", boltPos.left, boltPos.top);
-    _mgCtx_.beginPath();
-    _mgCtx_.rect(boltPos.left, boltPos.top, boltPos.width, boltPos.headHeight);
 }
 
 
 function pointInBoard(x, y) {
     let Flag = true;
-    if ((x - center.left) * (x - center.left) + (y - center.top) * (y - center.top) * 4 > clockBoard.width * clockBoard.width) Flag = false;
+    if ((x - center.left) * (x - center.left) + (y - center.top) * (y - center.top) > center.r * center.r) Flag = false;
     console.log("是否钟面界内:", Flag);    
+    return Flag;
 }
 function pointInBolt(x, y) {
     let Flag = true;
