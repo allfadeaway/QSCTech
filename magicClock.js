@@ -1,9 +1,8 @@
 const _magicCvs_ = document.getElementById("ClockCanvas");
 const _mgCtx_ = _magicCvs_.getContext("2d");
 
-const REALWIDTH = 800;
 
-
+const center = {left: 100, top: 550};
 let clockBoardPos = {left: 0, top: 450, width: 200, height: 200};
 const clockBoard = new Image();
 clockBoard.src = "./src/ClockBoard.png";
@@ -12,21 +11,31 @@ clockBoard.onload = () => {
 }
 
 
-/*
-const HourHand = new Image();
-HourHand.src = "./src/Bolt.png";
-HourHand.onload = () => {
-    _mgCtx_.drawImage(HourHand, 100, 550, 50, 50);
+
+//100 550
+const hourHandPos = {left: 93, top: 470, width: 15, height: 79};
+const hourHandCenter = {left: 8, top:65};
+let hourHandRotate = {
+    rad: 2,
+    R: Math.sqrt(hourHandCenter.left * hourHandCenter.left + hourHandCenter.top * hourHandCenter.top)
+};
+const hourHand = new Image();
+hourHand.src = "./src/HourHand.png";
+hourHand.onload = () => {
+    hourHandDraw();
 }
 
-
-const MinuteHand = new Image();
-MinuteHand.src = "./src/Bolt.png";
-MinuteHand.onload = () => {
-    _mgCtx_.drawImage(MinuteHand, 75, 100, 50, 120);
+const minuteHandPos = {left: 97, top: 470, width: 7, height: 79};
+const minuteHandCenter = {left: 4, top:65};
+let minuteHandRotate = {
+    rad: 0,
+    R: Math.sqrt(minuteHandCenter.left * minuteHandCenter.left + minuteHandCenter.top * minuteHandCenter.top)
+};
+const minuteHand = new Image();
+minuteHand.src = "./src/MinuteHand.png";
+minuteHand.onload = () => {
+    minuteHandDraw();
 }
-*/
-
 
 
 let isDown = false;
@@ -95,12 +104,41 @@ _magicCvs_.onmouseout = e => {
     judgePosition(); 
     drawAll(); 
 }
+function hourHandDraw() {
+    let rad = hourHandRotate.rad;
+    let nwc = {
+        left: hourHandCenter.left * Math.cos(rad) - hourHandCenter.top * Math.sin(rad),
+        top: hourHandCenter.top * Math.cos(rad) + hourHandCenter.left * Math.sin(rad)
+    };
+    console.log("坐标:", nwc.left, nwc.top);
+    _mgCtx_.translate(center.left - nwc.left, center.top - nwc.top);
+    _mgCtx_.rotate(rad);
+    _mgCtx_.drawImage(hourHand, 0, 0, hourHandPos.width, hourHandPos.height);
+    _mgCtx_.rotate(- rad);
+    _mgCtx_.translate(- center.left + nwc.left, - center.top + nwc.top);
+}
+function minuteHandDraw() {
+    let rad = minuteHandRotate.rad;
+    let nwc = {
+        left: minuteHandCenter.left * Math.cos(rad) - minuteHandCenter.top * Math.sin(rad),
+        top: minuteHandCenter.top * Math.cos(rad) + minuteHandCenter.left * Math.sin(rad)
+    };
+    console.log("坐标:", nwc.left, nwc.top);
+    _mgCtx_.translate(center.left - nwc.left, center.top - nwc.top);
+    _mgCtx_.rotate(rad);
+    _mgCtx_.drawImage(minuteHand, 0, 0, minuteHandPos.width, minuteHandPos.height);
+    _mgCtx_.rotate(- rad);
+    _mgCtx_.translate(- center.left + nwc.left, - center.top + nwc.top);
+}
 function drawAll() {
     //draw所有元素
     _mgCtx_.clearRect(0, 0, _magicCvs_.width, _magicCvs_.height);
     _mgCtx_.drawImage(Bolt, boltPos.left, boltPos.top, boltPos.width, boltPos.height);
     _mgCtx_.drawImage(clockBoard, clockBoardPos.left, clockBoardPos.top, clockBoardPos.width, clockBoardPos.height);
-    //drawImage
+
+    hourHandDraw();
+    minuteHandDraw();
+
     //drawImage
     console.log("Rect:", boltPos.left, boltPos.top);
     _mgCtx_.rect(boltPos.left, boltPos.top, boltPos.width, boltPos.height);
