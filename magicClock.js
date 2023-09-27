@@ -48,6 +48,13 @@ updatePos(boltPos.left, boltPos.top);
 updaterad();
 drawAll();
 
+function _ClockAnimation(){
+    drawAll();
+    console.log("run");
+    window.requestAnimationFrame(_ClockAnimation);
+}
+_ClockAnimation();
+
 _magicCvs_.onmousedown = e => {
     isDown = true;     
     // 鼠标按下时，设置isDown为true，此时移动鼠标才认为是有效。
@@ -148,6 +155,7 @@ function drawAll() {
 
     //drawImage
     console.log("Rect:", boltPos.left, boltPos.top);
+    _mgCtx_.beginPath();
     _mgCtx_.rect(boltPos.left, boltPos.top, boltPos.width, boltPos.height);
 }
 
