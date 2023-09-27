@@ -219,3 +219,12 @@ const canvas=getElementById("ClockCanvas");
 ## Ver 0.5
 
 - 增加animation实时反馈
+
+## Ver 0.6
+
+- 插销横向固定
+- 插销设置下界
+- 完成插销冻结时间
+- 修改插销控制范围
+- 调整拖动机制
+- 添加钟面判定
