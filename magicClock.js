@@ -11,6 +11,7 @@ clockBoard.onload = () => {
     _mgCtx_.drawImage(clockBoard, clockBoardPos.left, clockBoardPos.top, clockBoardPos.width, clockBoardPos.height);
 }
 
+
 /*
 const HourHand = new Image();
 HourHand.src = "./src/Bolt.png";
