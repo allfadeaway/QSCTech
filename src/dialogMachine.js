@@ -121,11 +121,14 @@ function addOneDialogsIntoQueue(dialogInfo){
 }
 
 
-
+let completeConnect = false;
 function triggerAchievement(type){
+    if (type == APIName.Connect && completeConnect) return;
     //每次开始时尝试连接
+    console.log("ACHIEVEMENT:", type);
     fetch(serverPath+"/"+type,{method:"GET"})
     .then((res)=>{
+        if (type == APIName.Connect) completeConnect = true;
         return res.json();
     }).then((obj)=>{
         if(obj.judge){
@@ -143,7 +146,7 @@ function triggerAchievement(type){
         }
     }).catch((err)=>{
         if(type===APIName.Connect){
-            addSpecialCloud("穿越者","没有连接到服务器,但没关系,不过是没办法听到些只言碎语罢了;请继续加油,完成你的使命!",5000)
+            addSpecialCloud("穿越者","没有连接到服务器,但没关系,不过是没办法听到些只言碎语罢了;请继续加油,完成你的使命!",5000);
             console.info("没有连接到服务器,但没关系,不过是没办法听到些只言碎语罢了;请继续加油,完成你的使命！\n——求是潮");
         }else if(type===APIName.Combo){
             addSpecialCloud("穿越者","终于,小镇的时间不再飞逝,每个人都把握住自己的年华;抛弃无数的顾虑抓住当下,对于过往也从未感到遗憾。我要替居民们,对您说声感谢！感谢您,默默付出的创世主！");
@@ -222,5 +225,5 @@ triggerAchievement(APIName.Connect);
 
 //系统时间判定。
 setTimeout(()=>{
-    triggerAchievement(APIName.JudgeSystemTime);}
-,4000);
+    triggerAchievement(APIName.JudgeSystemTime); 
+},4000);

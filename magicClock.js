@@ -51,7 +51,7 @@ updatePos(boltPos.left, boltPos.top);
 function _ClockAnimation(){
     //实时渲染
     if (updateTime) {
-        console.log("CHANGE!!!!!!!!!!");
+        //console.log("CHANGE!!!!!!!!!!");
         changeTime();
     }
     drawAll();
@@ -64,12 +64,12 @@ _ClockAnimation();
 
 _magicCvs_.onmousedown = e => {
     // 鼠标按下时，设置isDown为true，此时移动鼠标才认为是有效。
-    console.log("鼠标按下");
+    //console.log("鼠标按下");
     let x = e.offsetX;     
     let y = e.offsetY;
-    console.log(x + " -> " + y, reachBoundary, pointInBoard(x, y));
+    //console.log(x + " -> " + y, reachBoundary, pointInBoard(x, y));
     if (reachBoundary && pointInBoard(x, y)) {
-        console.log("更改时间");
+        //console.log("更改时间");
         isDown = true;
         updateTime = true;
         upt.x = x;
@@ -80,7 +80,9 @@ _magicCvs_.onmousedown = e => {
         now.y = y;
         isDown = true;
     }
-    else console.log("鼠标没在路径内");
+    else {
+        //console.log("鼠标没在路径内");
+    }
 };
 _magicCvs_.onmousemove = e => {
     // 在鼠标移动时，不断重绘制整个canvas
@@ -102,20 +104,20 @@ _magicCvs_.onmousemove = e => {
         drawAll();
         now.y = y;
     }
-    console.log("鼠标在移动..." + x + " --> " + y);
+    //console.log("鼠标在移动..." + x + " --> " + y);
 }
 _magicCvs_.onmouseup = e => {
     //鼠标松开
     isDown = false;  
     updateTime = false;
-    console.log("鼠标松开");
+    //console.log("鼠标松开");
     drawAll();
 }
 _magicCvs_.onmouseout = e => {
     //鼠标移出
     isDown = false;
     updateTime = false;
-    console.log("鼠标离开了画布元素");
+    //console.log("鼠标离开了画布元素");
     drawAll(); 
 }
 
@@ -141,7 +143,7 @@ function changeTime() {
     while (nwH * 60 + nwM < prH * 60 + prM) nwH = nwH + 12;
     while (nwH > 23) nwH = nwH - 24;
 
-    console.log("修改时间:", nwH, nwM);
+    //console.log("修改时间:", nwH, nwM);
     setTime(`${((nwH<10)?"0":"")}${nwH}:${((nwM<10)?"0":"")}${nwM}`);
     updaterad();
 }
@@ -180,7 +182,7 @@ function updaterad() {
     let nwTime = getTime();
     let nwH = parseInt(nwTime.slice(0, 2));
     let nwM = parseInt(nwTime.slice(3, 5));
-    console.log("角度更改:", nwH, nwM);
+    //console.log("角度更改:", nwH, nwM);
     let nwMinute = nwH * 60 + nwM;
     hourHandRotate.rad = Math.PI * 2 * nwMinute / 720.0;
     minuteHandRotate.rad = Math.PI * 2 * nwM / 60.0;
@@ -200,24 +202,24 @@ function drawAll() {
 function pointInBoard(x, y) {
     let Flag = true;
     if ((x - center.left) * (x - center.left) + (y - center.top) * (y - center.top) > center.r * center.r) Flag = false;
-    console.log("是否钟面界内:", Flag);    
+    //console.log("是否钟面界内:", Flag);    
     return Flag;
 }
 function pointInBolt(x, y) {
     let Flag = true;
     if (x < boltPos.left || x > boltPos.left + boltPos.width) Flag = false;
     if (y < boltPos.top || y > boltPos.top + boltPos.headHeight) Flag = false;
-    console.log("是否插销界内:", Flag);
+    //console.log("是否插销界内:", Flag);
     return Flag;
 }
 function updatePos(x, y) {
     //更新左上角位置
-    console.log("传入的参数值：", x, y);
+    //console.log("传入的参数值：", x, y);
     boltPos.top = y;
 }
 function judgePosition() {
     // 判断位置，当点越界时，进行处理
-    console.log("judgePosition:", boltPos);
+    //console.log("judgePosition:", boltPos);
     if (boltPos.left < 0) updatePos(0, boltPos.top);
     if (boltPos.top < 0) updatePos(boltPos.left, 0);
     if (boltPos.left + boltPos.width > boundary.width) updatePos(boundary.width - boltPos.width, boltPos.top);

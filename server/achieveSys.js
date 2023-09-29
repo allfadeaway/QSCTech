@@ -19,9 +19,18 @@ const dialogs=JSON.parse(
         ,"base64").toString("utf-8"))
     )
 );
-
+//console.log(dialogs);
 //动态的任务状态数据
 const dialogsMETA=JSON.parse(fs.readFileSync(METAFileName,"utf-8"));
+
+/*
+dialogsMETA.hasConnect = false;
+dialogsMETA.hasSetTime = false;
+dialogsMETA.hasStop = false;
+dialogsMETA.hasCombo = false;
+dialogsMETA.hasGetTime = false;
+changeMETA();
+*/
 
 //服务器侦听的端口号
 const listenHost=9998;
@@ -95,6 +104,7 @@ app.get("/systemTime",function(req,res){
     let needHello=false;
     let isMorning=true;
     //如果是新的一天，就刷新提醒状态
+    console.log("DAY:", curDay, dialogsMETA.curDay);
     if(curDay !== dialogsMETA.curDay){
         dialogsMETA.hasGoodMorning=false;
         dialogsMETA.hasGoodNight=false;
@@ -118,6 +128,7 @@ app.get("/systemTime",function(req,res){
         dialogInfo:diaInfo,
         isMorning:isMorning,
     });
+    console.log("RETSTRING:", retString);
     retString=retString.replace("$HOUR$",hour.toString());
     retString=retString.replace("$DATE$",curDay.toString());
     res.status(200).send(retString);
@@ -125,7 +136,7 @@ app.get("/systemTime",function(req,res){
 });
 
 //侦听端口
-let server=app.listen(listenHost,function(){
+let server=app.listen(listenHost, 'localhost', function(){
     let host = server.address().address;
     let port = server.address().port;
     console.log("对话册的服务器访问地址为http://%s:%s",host,port);
@@ -137,10 +148,12 @@ function createResponse(METAKeyName,dialogsKeyName){
     if(!dialogsMETA[METAKeyName]){
         isFirst=true;
         if(!DEBUG){
+            console.log("CREATERESPONSE:", METAKeyName);
             dialogsMETA[METAKeyName]=true;
             changeMETA();
         }
     }
+    console.log(isFirst, (isFirst)?dialogs[dialogsKeyName]:{});
     return {
         judge:isFirst,
         dialogInfo:((isFirst)?dialogs[dialogsKeyName]:{}),
@@ -149,6 +162,7 @@ function createResponse(METAKeyName,dialogsKeyName){
 
 
 function changeMETA(){
+    console.log(JSON.stringify(dialogsMETA));
     fs.writeFile(METAFileName,JSON.stringify(dialogsMETA),
     {encoding:"utf-8",
     flag:"w"},()=>{
